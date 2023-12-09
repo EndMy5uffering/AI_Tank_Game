@@ -5,8 +5,8 @@ using UnityEngine;
 public class TankControler : MonoBehaviour
 {
 
-    public float speed = 0.1f;
-    public float rotSpeed = 0.1f;
+    public float speed = 100f;
+    public float rotSpeed = 5f;
     public float accell = 1.0f;
     public Camera cam;
 
@@ -14,6 +14,8 @@ public class TankControler : MonoBehaviour
 
     private bool hasHit = false;
     private Vector3 hitPoint = Vector3.zero;
+
+    private Vector3 direction = Vector3.forward;
 
     // Start is called before the first frame update
     void Start()
@@ -26,19 +28,22 @@ public class TankControler : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.W)) 
         {
-            this.transform.Translate(speed * this.transform.forward);    
+            this.transform.Translate(speed * direction * Time.deltaTime, Space.World);    
         }
         if (Input.GetKey(KeyCode.S))
         {
-            this.transform.Translate(-speed * this.transform.forward);
+            this.transform.Translate(-speed * direction * Time.deltaTime, Space.World);
         }
         if (Input.GetKey(KeyCode.A))
         {
-            this.transform.Rotate(this.transform.up, -rotSpeed);
+            //this.transform.Rotate(this.transform.up, -rotSpeed);
+            this.direction = (Quaternion.Euler(0, -rotSpeed * Time.deltaTime, 0) * direction).normalized;
         }
         if (Input.GetKey(KeyCode.D))
         {
-            this.transform.Rotate(this.transform.up, rotSpeed);
+            //this.transform.Rotate(this.transform.up, rotSpeed);
+            this.direction = (Quaternion.Euler(0, rotSpeed * Time.deltaTime, 0) * direction).normalized;
+
         }
 
         if (Input.GetMouseButtonDown(0)) 
@@ -46,6 +51,7 @@ public class TankControler : MonoBehaviour
             FieringCheck();
         }
 
+        this.transform.LookAt(this.transform.position + this.direction);
     }
 
     void FieringCheck() 
@@ -80,5 +86,8 @@ public class TankControler : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(this.hitPoint, 5);
         }
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(this.transform.position, this.transform.position + this.direction * 5);
     }
 }
